@@ -48,7 +48,7 @@ namespace ImageDiff
     {
       if(IntPtr.Zero != RawData)
       {
-        Marshal.FreeHGlobal(RawData);
+        Binding.FreeImgMem(RawData);
       }
     }
   }
@@ -96,6 +96,9 @@ namespace ImageDiff
   {
     [DllImport("imgdiff.dll", EntryPoint = "diff_img_byte")]
     private static extern NativeDiffResult DiffARGB(NativeImage left, NativeImage right, NativeDiffOptions options);
+
+    [DllImport("imgdiff.dll", EntryPoint = "free_img_mem")]
+    internal static extern void FreeImgMem(IntPtr ptr);
 
     public static DiffResult Diff(Bitmap left, Bitmap right, DiffOptions options)
     {

@@ -42,7 +42,7 @@ namespace ImageDiffTest
       double msPerIter = (double)perf.ElapsedMilliseconds/iterationCount;
       Console.WriteLine(msPerIter + " ms per iteration.");
       double msPerPixel = msPerIter / (result.Image.Width * result.Image.Height);
-      Console.WriteLine(msPerPixel + " ms per pixel.");
+      Console.WriteLine(msPerPixel * 1000 + " ns per pixel.");
       result.Image.Save(diff);
       result.Dispose();
       Console.ReadLine();
