@@ -261,7 +261,8 @@ extern "C" {
         }
 
         auto isdiff = _mm_cmpgt_ps(distance, tolerance);
-        t = _mm_max_ps(one, _mm_min_ps(zero, t));
+
+        t = _mm_min_ps(one, _mm_max_ps(zero, t));
         auto mlr = rr;
         auto mlg = rg;
         auto mlb = rb;
@@ -277,7 +278,7 @@ extern "C" {
         auto oneMinusT = _mm_sub_ps(one, t);
 
         auto mixedR = _mm_add_ps(_mm_mul_ps(mlr, oneMinusT), _mm_mul_ps(er, t));
-        auto mixedG = _mm_add_ps(_mm_mul_ps(mlr, oneMinusT), _mm_mul_ps(eg, t));
+        auto mixedG = _mm_add_ps(_mm_mul_ps(mlg, oneMinusT), _mm_mul_ps(eg, t));
         auto mixedB = _mm_add_ps(_mm_mul_ps(mlb, oneMinusT), _mm_mul_ps(eb, t));
         auto mixedA = one;
 

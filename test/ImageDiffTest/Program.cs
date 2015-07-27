@@ -24,18 +24,18 @@ namespace ImageDiffTest
       DiffResult result = new DiffResult();
       Stopwatch perf = new Stopwatch();
       perf.Start();
-      for (int i = 0; i < iterationCount; i++)
+      for (int i = 0; i < iterationCount && i<1; i++)
       {
         result.Dispose();
         result = ImageDiff.Binding.Diff(leftImg, rightImg,
           new DiffOptions()
           {
-            ErrorColor = Color.FromArgb(255, 255, 0, 0),
+            ErrorColor = Color.FromArgb(255, 255, 0, 255),
             Tolerance = 0.2f,
             OverlayTransparency = 1.0f,
-            OverlayType = OverlayType.Flat,
+            OverlayType = OverlayType.Movement,
             WeightByDiffPercentage = false,
-            IgnoreColor = true
+            IgnoreColor = false
           });
       }
       perf.Stop();
@@ -45,7 +45,6 @@ namespace ImageDiffTest
       Console.WriteLine(msPerPixel * 1000 + " ns per pixel.");
       result.Image.Save(diff);
       result.Dispose();
-      Console.ReadLine();
     }
   }
 }
