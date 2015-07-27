@@ -104,11 +104,12 @@ inline Image ConvertToFloat(BImage in) {
   w += stride;
 
   assert(w % 4 == 0);
-
-  float* rBase = (float*)_aligned_malloc(w * h * sizeof(float), 16);
-  float* gBase = (float*)_aligned_malloc(w * h * sizeof(float), 16);
-  float* bBase = (float*)_aligned_malloc(w * h * sizeof(float), 16);
-  float* aBase = (float*)_aligned_malloc(w * h * sizeof(float), 16);
+  float* imgMem = (float*)_aligned_malloc(w * h * sizeof(float) * 4, 16);
+  int colorOffset = w * h;
+  float* rBase = imgMem;
+  float* gBase = imgMem + colorOffset;
+  float* bBase = imgMem + colorOffset * 2;
+  float* aBase = imgMem + colorOffset * 3;
 
   float* r = rBase;
   float* g = gBase;
@@ -193,11 +194,9 @@ extern "C" {
       makeGreyscale(right);
     }
 
-    Image diff = { left.width, left.height, left.stride,
-      (float*)_aligned_malloc(left.width * left.height * sizeof(float), 16),
-      (float*)_aligned_malloc(left.width * left.height * sizeof(float), 16),
-      (float*)_aligned_malloc(left.width * left.height * sizeof(float), 16),
-      (float*)_aligned_malloc(left.width * left.height * sizeof(float), 16) };
+    float* imgMem = (float*)_aligned_malloc(left.width * left.height * sizeof(float) * 4, 16);
+    int colorOffset = left.width * left.height;
+    Image diff = { left.width, left.height, left.stride, imgMem, imgMem + colorOffset, imgMem + colorOffset * 2, imgMem + colorOffset * 3 };
 
     float* drp = diff.r;
     float* dgp = diff.g;
@@ -335,19 +334,10 @@ extern "C" {
     BDiffResult resultb = { ConvertToByte(resultf.img), resultf.similarity };
 
     _aligned_free(resultf.img.r);
-    _aligned_free(resultf.img.g);
-    _aligned_free(resultf.img.b);
-    _aligned_free(resultf.img.a);
 
     _aligned_free(leftf.r);
-    _aligned_free(leftf.g);
-    _aligned_free(leftf.b);
-    _aligned_free(leftf.a);
 
     _aligned_free(rightf.r);
-    _aligned_free(rightf.g);
-    _aligned_free(rightf.b);
-    _aligned_free(rightf.a);
 
     return resultb;
   }
