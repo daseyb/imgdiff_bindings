@@ -24,7 +24,7 @@ namespace ImageDiffTest
       DiffResult result = new DiffResult();
       Stopwatch perf = new Stopwatch();
       perf.Start();
-      for (int i = 0; i < iterationCount && i<1; i++)
+      for (int i = 0; i < iterationCount; i++)
       {
         result.Dispose();
         result = ImageDiff.Binding.Diff(leftImg, rightImg,
