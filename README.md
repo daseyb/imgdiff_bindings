@@ -1,9 +1,9 @@
 # imgdiff
 Fast image comparison and diffing in C++ (with a C# binding)
 
-Insipired by [resemble.js](https://huddle.github.io/Resemble.js/)
+Inspired by [resemble.js](https://huddle.github.io/Resemble.js/)
 
-Basically exactly the same functionaliry, just not JavaScript. (i.e. faster, uses SSE2, small memory footprint)
+Basically exactly the same functionality, just not JS. (i.e. faster, uses SSE2, small memory footprint)
 
 Build bindings\ImageDiff for an easy to use C# binding.
 
