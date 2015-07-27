@@ -31,7 +31,7 @@ namespace ImageDiffTest
           new DiffOptions()
           {
             ErrorColor = Color.FromArgb(255, 255, 0, 255),
-            Tolerance = 0.2f,
+            Tolerance = 0.15f,
             OverlayTransparency = 1.0f,
             OverlayType = OverlayType.Movement,
             WeightByDiffPercentage = false,
