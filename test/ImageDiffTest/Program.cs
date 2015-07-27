@@ -39,7 +39,7 @@ namespace ImageDiffTest
           });
       }
       perf.Stop();
-      double msPerIter = (double)perf.ElapsedMilliseconds/iterationCount;
+      double msPerIter = (double)perf.ElapsedMilliseconds / iterationCount;
       Console.WriteLine(msPerIter + " ms per iteration.");
       double msPerPixel = msPerIter / (result.Image.Width * result.Image.Height);
       Console.WriteLine(msPerPixel * 1000 + " ns per pixel.");
@@ -48,3 +48,5 @@ namespace ImageDiffTest
     }
   }
 }
+
+
