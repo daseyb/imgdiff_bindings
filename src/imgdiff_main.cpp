@@ -68,10 +68,6 @@ inline TColor<T> ARGB(T a, T r, T g, T b) {
   return result;
 }
 
-struct alignas(16) simd4 {
-  float v[4];
-};
-
 inline BColor* ConvertToByte(uint32 w, uint32 h, int stride, float* r, float* g, float* b, float* a) {
   w -= stride;
   BColor* data = (BColor*)malloc(w*h*sizeof(BColor));
@@ -318,10 +314,11 @@ extern "C" {
       }
     }
 
-    alignas(16) int pixelCounts[4];
+    int* pixelCounts = (int*)_aligned_malloc(4 * sizeof(int), 16);
     _mm_store_si128((__m128i*)pixelCounts, diffPixelCount);
 
     int totalCount = pixelCounts[0] + pixelCounts[1] + pixelCounts[2] + pixelCounts[3];
+    _aligned_free(pixelCounts);
 
     return{ diff, 1.0f - float(totalCount) / (left.height * left.width - left.height * left.stride) };
   }
