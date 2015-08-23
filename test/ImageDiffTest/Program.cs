@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ImageDiff;
-using System.Drawing;
 using System.Diagnostics;
+using System.IO;
 
 namespace ImageDiffTest
 {
@@ -19,8 +19,12 @@ namespace ImageDiffTest
 
       int iterationCount = int.Parse(args[3]);
 
-      Bitmap leftImg = new Bitmap(left);
-      Bitmap rightImg = new Bitmap(right);
+      FileStream leftStream = File.OpenRead(left);
+      FileStream rightStream = File.OpenRead(right);
+
+      Bitmap leftImg = new Bitmap(leftStream);
+      Bitmap rightImg = new Bitmap(rightStream);
+
       DiffResult result = new DiffResult();
       Stopwatch perf = new Stopwatch();
       perf.Start();

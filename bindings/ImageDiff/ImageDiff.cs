@@ -1,13 +1,90 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace ImageDiff
 {
+  public struct Color
+  {
+    public byte R, G, B, A;
+    public static Color FromArgb(byte A, byte R, byte G, byte B)
+    {
+      return new Color() { A = A, R = R, G = G, B = B };
+    }
+
+    public static readonly Color Red = Color.FromArgb(255, 255, 0, 0);
+  }
+
+  public class Bitmap : IDisposable
+  {
+    public int Width { get; private set; }
+    public int Height { get; private set; }
+
+    internal NativeImage nativeImage;
+
+    public Bitmap(string filename)
+    {
+      nativeImage = Binding.LoadImage(filename);
+      Width = nativeImage.Width;
+      Height = nativeImage.Height;
+    }
+
+    public Bitmap(Stream stream)
+    {
+      byte[] buffer = new byte[16 * 1024];
+      byte[] allBytes;
+
+      using (MemoryStream ms = new MemoryStream())
+      {
+        int read;
+        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+        {
+          ms.Write(buffer, 0, read);
+        }
+
+        allBytes = ms.ToArray();
+      }
+
+      nativeImage = Binding.LoadImage(allBytes, allBytes.Length);
+      Width = nativeImage.Width;
+      Height = nativeImage.Height;
+    }
+
+    public Bitmap(int width, int height, IntPtr data)
+    {
+      Width = width;
+      Height = height;
+      nativeImage = new NativeImage() { Width = width, Height = height, Data = data };
+    }
+
+    public void Save(string filename)
+    {
+      Binding.SavePng(nativeImage, filename);
+    }
+
+    public void Dispose()
+    {
+      if (IntPtr.Zero != nativeImage.Data)
+      {
+        Binding.FreeImgMem(nativeImage.Data);
+      }
+    }
+  }
+
+  public class Image
+  {
+    public static Bitmap FromFile(string filename)
+    {
+      return new Bitmap(filename);
+    }
+
+    public static Bitmap FromStream(Stream stream)
+    {
+      return new Bitmap(stream);
+    }
+  }
+    
+
   [StructLayout(LayoutKind.Sequential)]
   internal struct NativeImage
   {
@@ -42,13 +119,12 @@ namespace ImageDiff
   {
     public Bitmap Image;
     public float Similarity;
-    internal IntPtr RawData;
 
     public void Dispose()
     {
-      if(IntPtr.Zero != RawData)
+      if(Image != null)
       {
-        Binding.FreeImgMem(RawData);
+        Image.Dispose();
       }
     }
   }
@@ -100,22 +176,23 @@ namespace ImageDiff
     [DllImport("imgdiff.dll", EntryPoint = "free_img_mem")]
     internal static extern void FreeImgMem(IntPtr ptr);
 
+    [DllImport("imgdiff.dll", EntryPoint = "load_img", CharSet = CharSet.Ansi)]
+    internal static extern NativeImage LoadImage(string filename);
+
+    [DllImport("imgdiff.dll", EntryPoint = "load_img_mem", CharSet = CharSet.Ansi)]
+    internal static extern NativeImage LoadImage(byte[] data, int len);
+
+    [DllImport("imgdiff.dll", EntryPoint = "save_png", CharSet = CharSet.Ansi)]
+    internal static extern void SavePng(NativeImage image, string filename);
+
     public static DiffResult Diff(Bitmap left, Bitmap right, DiffOptions options)
     {
       DiffResult result = new DiffResult();
-      BitmapData leftData = left.LockBits(new Rectangle(0, 0, left.Width, left.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-      BitmapData rightData = right.LockBits(new Rectangle(0, 0, right.Width, right.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-      NativeImage leftImg = new NativeImage() { Width = leftData.Width, Height = leftData.Height, Data = leftData.Scan0 };
-      NativeImage rightImg = new NativeImage() { Width = rightData.Width, Height = rightData.Height, Data = rightData.Scan0 };
-
-      NativeDiffResult nr = DiffARGB(leftImg, rightImg, NativeDiffOptions.FromManaged(options));
-      left.UnlockBits(leftData);
-      right.UnlockBits(rightData);
+      NativeDiffResult nr = DiffARGB(left.nativeImage, right.nativeImage, NativeDiffOptions.FromManaged(options));
 
       result.Similarity = nr.Similarity;
-      result.Image = new Bitmap(nr.Image.Width, nr.Image.Height, 4 * nr.Image.Width, PixelFormat.Format32bppArgb, nr.Image.Data);
-      result.RawData = nr.Image.Data;
+      result.Image = new Bitmap(nr.Image.Width, nr.Image.Height, nr.Image.Data);
       return result;
     }
 

@@ -4,12 +4,18 @@
 #include <mmintrin.h>
 #include <intrin.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb\stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb\stb_image_write.h"
+
 typedef uint8_t byte;
 typedef uint32_t uint32;
 
 template<typename T>
 struct TColor {
-  T b, g, r, a;
+  T a, b, g, r;
 };
 
 typedef TColor<float> Color;
@@ -143,7 +149,7 @@ inline Image ConvertToFloat(BImage in) {
 }
 
 inline BImage ConvertToByte(Image in) {
-  BImage inb = { in.width, in.height, nullptr };
+  BImage inb = { in.width - in.stride, in.height, nullptr };
   inb.data = ConvertToByte(in.width, in.height, in.stride, in.r, in.g, in.b, in.a);
   return inb;
 }
@@ -182,9 +188,25 @@ inline void makeGreyscale(Image image) {
 
 
 extern "C" {
-  _declspec(dllexport) DiffResult __stdcall diff_img(Image left, Image right, DiffOptions options) {
-    assert(left.width == right.width && left.height == right.height);
+  _declspec(dllexport) BImage __stdcall load_img(const char* filename) {
+    BImage img;
+    int comps;
+    img.data = (BColor*)stbi_load(filename, &img.width, &img.height, &comps, 4);
+    return img;
+  }
 
+  _declspec(dllexport) BImage __stdcall load_img_mem(const byte* data, int len) {
+    BImage img;
+    int comps;
+    img.data = (BColor*)stbi_load_from_memory(data, len, &img.width, &img.height, &comps, 4);
+    return img;
+  }
+
+  _declspec(dllexport) void __stdcall save_png(BImage image, const char* filename) {
+    stbi_write_png(filename, image.width, image.height, 4, image.data, 0);
+  }
+
+  _declspec(dllexport) DiffResult __stdcall diff_img(Image left, Image right, DiffOptions options) {
     if (options.ignoreColor) {
       makeGreyscale(left);
       makeGreyscale(right);
@@ -346,10 +368,10 @@ extern "C" {
 
 
 int main(void) {
-  BImage img1 = { 15, 15, (BColor*)malloc(15 * 15 * sizeof(BColor)) };
-  BImage img2 = { 15, 15, (BColor*)malloc(15 * 15 * sizeof(BColor)) };
+  BImage img1 = { 966, 1165, (BColor*)malloc(966 * 1165 * sizeof(BColor)) };
+  BImage img2 = { 966, 1165, (BColor*)malloc(966 * 1165 * sizeof(BColor)) };
   
-  for (int i = 0; i < 15 * 15; i++) {
+  for (int i = 0; i < 966 * 1165; i++) {
     img1.data[i] = ARGB((byte)255, (byte)255, (byte)255, (byte)0);
     img2.data[i] = ARGB((byte)255, (byte)255, (byte)255, (byte)0);
   }

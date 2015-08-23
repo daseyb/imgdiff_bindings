@@ -1,0 +1,1 @@
+test\ImageDiffTest\bin\Debug\ImageDiffTest.exe data\test1.png data\test2.png data\test_diff.png 1
