@@ -28,8 +28,8 @@ Build bindings\ImageDiff for an easy to use C# binding.
 ### Result
 ### Input:
 _________________
-![Left](https://raw.githubusercontent.com/bonus2113/imgdiff/master/data/1_normal.jpg)  ![Right](https://raw.githubusercontent.com/bonus2113/imgdiff/master/data/1_modified.jpg)
+![Left](https://raw.githubusercontent.com/bonus2113/imgdiff_bindings/master/data/1_normal.jpg)  ![Right](https://raw.githubusercontent.com/bonus2113/imgdiff_bindings/master/data/1_modified.jpg)
 
 ### Diff:
 _________________
-![Diff](https://raw.githubusercontent.com/bonus2113/imgdiff/master/data/1_diff.jpg)
+![Diff](https://raw.githubusercontent.com/bonus2113/imgdiff_bindings/master/data/1_diff.jpg)
